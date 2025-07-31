@@ -1,3 +1,23 @@
+"""
+Created 7/27/2025
+Animal Shelter Dashboard
+ShelterDashboard.py
+
+Author: Anthony Baratti
+Southern New Hampshire University
+CS-499 Computer Science Capstone
+Artifact Enhancement #3
+Conversion from MongoDB to SQLite3
+
+Purpose: Creates a dash layout using html for UI/UX.
+Imports AnimalShelter class from CRUD for CRUD operations (Only uses READ)
+Uses Dash functionality to create a GUI to display a data table
+of animals retrieved from the data base, filtered by radio buttons (user input).
+Also displays the retrieved information in a pie chart and a geo-location
+interactive map.
+"""
+
+
 # Setup Dash
 from dash import Dash
 
@@ -24,22 +44,10 @@ from CRUD import AnimalShelter
 
 
 # Connect to database via CRUD Module
-# keep parameters of username and password optional
-db = AnimalShelter(userName=None, userPwd=None)
+db = AnimalShelter("animals.db")
 
-# class read method must support return of list object and accept projection json input
-# sending the read method an empty document requests all documents be returned
-df = pd.DataFrame.from_records(db.read({}))
-
-# MongoDB v5+ is going to return the '_id' column and that is going to have an 
-# invlaid object type of 'ObjectID' - which will cause the data_table to crash - so we remove
-# it in the dataframe here. The df.drop command allows us to drop the column. If we do not set
-# inplace=True - it will reeturn a new dataframe that does not contain the dropped column(s)
-df.drop(columns=['_id'],inplace=True)
-
-## Debug
-# print(len(df.to_dict(orient='records')))
-# print(df.columns)
+# Read the database into the dataframe
+df = pd.DataFrame(db.read())
 
 
 #########################
@@ -53,7 +61,7 @@ encoded_image = base64.b64encode(open(image_filename, 'rb').read())
 
 app.layout = html.Div([
     html.Div(id='hidden-div', style={'display':'none'}),
-    html.Center(html.B(html.H1('CS-340 Dashboard'))),
+    html.Center(html.B(html.H1('CS-499 Enhanced Dashboard'))),
     html.Hr(),
     html.A([
         ##Sets image as GS Logo, sizes and centers it, and attaches URL to clicking image
@@ -61,7 +69,7 @@ app.layout = html.Div([
                         height = 200, width = 200))], href = 'https://www.snhu.edu', target = '_blank'),
     html.Br(),
     ##Unique Identifier
-    html.Center(html.I(html.H1("Anthony Baratti -- Project II"))),
+    html.Center(html.I(html.H1("Enhancement Artifact Three"))),
     html.Hr(),
     html.Div([
         ##Creates a set of radio buttons and allows passing the stored button to other functions
@@ -73,7 +81,7 @@ app.layout = html.Div([
     html.Hr(),
     dash_table.DataTable(id='datatable-id',
         columns=[
-            {"name": i, "id": i, "deletable": False, "selectable": True} for i in df.columns
+            {"name": str(i), "id": str(i), "deletable": False, "selectable": True} for i in df.columns
         ],
         data=df.to_dict('records'),
         editable=True,
@@ -105,7 +113,7 @@ app.layout = html.Div([
         ]),
     html.Br(),
     ##Unique Identifier at bottom for Project screenshot purposes
-    html.Center(html.I(html.H1("Anthony Baratti -- Project II"))),
+    html.Center(html.I(html.H1("Anthony Baratti -- Capstone Enhancement III"))),
     html.Hr(),
 ])
 
@@ -134,60 +142,79 @@ def update_store(value):
 def update_dashboard(filter_type):
         #Show All is set to default in app.layout
         if (filter_type == 'Show All Preferred'):
-            df = pd.DataFrame.from_records(db.read(
-                ## Using $or allows the filter of all the sub
-                ## filter types by combining them all together
-                ## This way the "Show All" button won't just
-                ## Show every single animal, but only the preferred
-                ## animals of the specific fields.
-                {'$or': [{'animal_type':'Dog',
-                'breed': {'$in': ['Labrador Retriever Mix','Chesapeake Bay Retriever',
-                                      'Newfoundland']},
-                'sex_upon_outcome': 'Intact Female',
-                'age_upon_outcome_in_weeks': {'$gte':26.0, '$lte':156.0}},
-                {'animal_type':'Dog',
-                'breed': {'$in': ['German Shepherd', 'Alaskan Malamute',
-                                      'Old English Sheepdog', 'Siberian Husky',
-                                      'Rottweiler']},
-                'sex_upon_outcome': 'Intact Male',
-                'age_upon_outcome_in_weeks': {'$gte':26.0, '$lte':156.0}},
-                {'animal_type':'Dog',
-                'breed': {'$in': ['Doberman Pinscher', 'German Shepherd', 'Golden Retriever',
-                                      'Bloodhound', 'Rottweiler']},
-                'sex_upon_outcome': 'Intact Male',
-                'age_upon_outcome_in_weeks': {'$gte':20.0, '$lte':300.0}}]}))                 
+            filter_query = (
+
+                ##ARTIFACT ENHANCEMENT: Here, we have to refactor the code to use
+                #  SQLite3 modeling rather than JSON MongoDB modeling. Broken in sections for readability
+
+                "(animal_type = 'Dog' AND "
+                "breed IN ('Labrador Retriever Mix', 'Chesapeake Bay Retriever', 'Newfoundland') AND "
+                "sex_upon_outcome = 'Intact Female' AND "
+                "age_upon_outcome_in_weeks BETWEEN 26.0 AND 156.0)"
+                " OR "
+                "(animal_type = 'Dog' AND "
+                "breed IN ('German Shepherd', 'Alaskan Malamute', 'Old English Sheepdog', 'Siberian Husky', "
+                "'Rottweiler') AND "
+                "sex_upon_outcome = 'Intact Male' AND "
+                "age_upon_outcome_in_weeks BETWEEN 26.0 AND 156.0)"
+                " OR "
+                "(animal_type = 'Dog' AND "
+                "breed IN ('Doberman Pinscher', 'German Shepherd', 'Golden Retriever', 'Bloodhound', "
+                "'Rottweiler') AND "
+                "sex_upon_outcome = 'Intact Male' AND "
+                "age_upon_outcome_in_weeks BETWEEN 20.0 AND 300.0)")
+
+            #set the dataframe using the CRUD read operation with the query
+            df = pd.DataFrame(db.read(filter_query))
             
         ##Filter for Water training dogs
         elif (filter_type == 'Water'):
-            df = pd.DataFrame.from_records(db.read(
-                        {'animal_type':'Dog',
-                        'breed': {'$in': ['Labrador Retriever Mix','Chesapeake Bay Retriever',
-                                      'Newfoundland']},
-                        'sex_upon_outcome': 'Intact Female',
-                        'age_upon_outcome_in_weeks': {'$gte':26.0, '$lte':156.0}}))
+            filter_query = (
+                "animal_type = 'Dog' AND "
+                "breed IN ('Labrador Retriever Mix', 'Chesapeake Bay Retriever', 'Newfoundland') AND "
+                "sex_upon_outcome = 'Intact Female' AND "
+                "age_upon_outcome_in_weeks BETWEEN 26.0 AND 156.0"
+            )
+
+            #set dataframe with query
+            df = pd.DataFrame(db.read(filter_query))
+
             
         ##Filter for Mountain/Wilderness training dogs
         elif(filter_type == 'Mountain or Wilderness'):
-            df = pd.DataFrame.from_records(db.read(
-                        {'animal_type':'Dog',
-                        'breed': {'$in': ['German Shepherd', 'Alaskan Malamute',
-                                      'Old English Sheepdog', 'Siberian Husky',
-                                      'Rottweiler']},
-                        'sex_upon_outcome': 'Intact Male',
-                        'age_upon_outcome_in_weeks': {'$gte':26.0, '$lte':156.0}}))
+            filter_query = (
+                "animal_type = 'Dog' AND "
+                "breed IN ('German Shepherd', 'Alaskan Malamute', 'Old English Sheepdog', "
+                "'Siberian Husky', 'Rottweiler') AND "
+                "sex_upon_outcome = 'Intact Male' AND "
+                "age_upon_outcome_in_weeks BETWEEN 26.0 AND 156.0"
+            )
+
+            df = pd.DataFrame(db.read(filter_query))
             
         ##Filter for Disaster/Rescue training dogs
         elif(filter_type == 'Disaster or Rescue'):
-            df = pd.DataFrame.from_records(db.read(
-                        {'animal_type':'Dog',
-                        'breed': {'$in': ['Doberman Pinscher', 'German Shepherd', 'Golden Retriever',
-                                      'Bloodhound', 'Rottweiler']},
-                        'sex_upon_outcome': 'Intact Male',
-                        'age_upon_outcome_in_weeks': {'$gte':20.0, '$lte':300.0}}))
-        elif(filter_type == 'Reset'):
-            df = pd.DataFrame.from_records(db.read({}))
+            filter_query=(
+                "animal_type = 'Dog' AND "
+                "breed IN ('Doberman Pinscher', 'German Shepherd', 'Golden Retriever', "
+                "'Bloodhound', 'Rottweiler') AND "
+                "sex_upon_outcome = 'Intact Male' AND "
+                "age_upon_outcome_in_weeks BETWEEN 20.0 AND 300.0"
+            )
 
-        df.drop(columns=['_id'],inplace=True)
+            #set dataframe
+            df = pd.DataFrame(db.read(filter_query))
+
+
+        elif(filter_type == 'Reset'):
+            ##Resets
+            df = pd.DataFrame(db.read())
+
+
+        ##checks if dataframe is empty and returns accordingly
+        if df.empty:
+            return[]
+
         return df.to_dict('records')
 
 
@@ -197,12 +224,6 @@ def update_dashboard(filter_type):
         [Input('datatable-id', "derived_virtual_data")])
 def update_graphs(viewData):
 
-    ##FIXME: This bit of code throws a callback error
-    ##  Where no data is found upon initial startup.
-    ##  Once the default data is in place, the pie chart
-    ##  functions correctly.
-
-    ##Fix
     # Defensive check for data before displaying
     if not viewData:
         return [html.Div("No data to display")]
@@ -269,12 +290,12 @@ def update_map(viewData, index):
            # the map
            # Column 4 defines the breed for the animal
            # Column 9 defines the name of the animal
-           dl.Marker(position=[dff.iloc[row,13], dff.iloc[row,14]],
+           dl.Marker(position=[dff.iloc[row]['location_lat'], dff.iloc[row]['location_long']],
               children=[
-              dl.Tooltip(dff.iloc[row,4]),
+              dl.Tooltip(dff.iloc[row]['breed']),
               dl.Popup([
                  html.H1("Animal Name"),
-                    html.P(dff.iloc[row,9])
+                    html.P(dff.iloc[row]['name'])
              ])
           ])
        ])
