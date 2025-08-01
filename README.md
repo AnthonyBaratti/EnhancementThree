@@ -1,5 +1,5 @@
 # AnimalShelterArtifact Enhancement Three
-[App Logo](https://github.com/AnthonyBaratti/EnhancementThree/blob/main/AnimalShelterArtifact/Grazioso%20Salvare%20Logo.png)
+![App Logo](AnimalShelterArtifact/Grazioso Salvare Logo.png)
 Grazioso Salvare is a webpage designed to filter and track dog breeds to be trained for rescue missions. Grazioso did research on the best types of animals (dog breeds, age, sex, ect) for training, and they want an application that easily parses a csv file into a database, then filters the contents to match their research. They also want visuals that help convey meaningful information, such as breed ratio (pie chart), relative information (name, sex, intake date, age, ect), and an interactive map for finding the animals via longitude and latitude.
 
 
