@@ -4,6 +4,7 @@ Grazioso Salvare is a webpage designed to filter and track dog breeds to be trai
 
 ## AnimalShelterArtifact Original
 Original Artifact from CS-340 Client Server Development<br>
+<br>[Original Artifact](https://github.com/AnthonyBaratti/EnhancementThree/AnimalShelterArtifact)<br><br>
 This artifact was designed using a CRUD.py and a ShelterDashboard.py.<br>
 The CRUD.py contains Create, Read, Update, and Delete (CRUD) methods for performing database queries. It also establishes the connection to MongoDB. All of these are wrapped in the AnimalShelter Class which will be imported from the CRUD.py into the ShelterDashboard.py. The purpose of the file is to manage query requests, although the ShelterDashboard will only use the Read function and the database connection.<br><br>
 The ShelterDashboard.py contains the weblayout and app controller for the database queries. The first section is the Dashboard Layout/View, which uses HTML coding to establish the view and parameters of the page. This includes a datatable for organizing the returned queries, a pie chart that utilizes Plotly, and an interactive geo-location map for pinning a user selected animal.<br>
