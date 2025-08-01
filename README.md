@@ -15,7 +15,7 @@ The enhancement to the AnimalShelterArtifact keeps the same exact architecture, 
 First, the conversion of CRUD.py removes the MongoDB connection and creates a local "animals.db" file to store the csv file into the table. Since the csv is loaded once, the database (.db) ships pre-loaded. However, the .csv and the load script are available should a user accidently delete the database. The CRUD functions have be reformatted to SQL clauses. Then, the filter options within the app.callback for the filters have been restructured to follow the SQL clause format as well. Since there is only controlled user input (i.e., only buttons, no text input), there is no need to safeguard entries. However, placeholders have been created to showcase security measures to prevent SQL Injection. The SQL structure follows the same procedures that the MongoDB structure enforced, searching by key and returning the values to the dataframe.<br><br>
 Some added files for the enhancement include a CRUD_test.py, which ensures that every CRUD operation works as intended with a simple script test. A main.py was created that imports the ShelterDashboard to help control entry to the application with a single point. This py file also opens the web browser when the application is launched so the user does not have to. A main.spec that can be rebuilt with PyInstaller to rebuild the deployable .exe file in case changes are made to.<br> <br>
 Libraries required to create the program: <br>
-pip install dash dash-leaflet pandas plotly sqlite3 //for all functionality
+pip install dash dash-leaflet pandas plotly sqlite3 //for all functionality <br>
 pip install pyinstaller   //For creating .exe
 # TO RUN THE PROGRAM:
 
