@@ -2,6 +2,19 @@
 ![App Logo](AnimalShelterArtifact/Grazioso%20Salvare%20Logo.png)<br>
 Grazioso Salvare is a webpage designed to filter and track dog breeds to be trained for rescue missions. Grazioso did research on the best types of animals (dog breeds, age, sex, ect) for training, and they want an application that easily parses a csv file into a database, then filters the contents to match their research. They also want visuals that help convey meaningful information, such as breed ratio (pie chart), relative information (name, sex, intake date, age, ect), and an interactive map for finding the animals via longitude and latitude.
 
+#### Technologies
+- Python 3.11
+- Dash
+- Plotly
+- pandas
+- SQLite3
+- dash-leaflet
+
+#### Features
+- Filter dogs by breed, age, and suitability for training
+- Visualize data with interactive tables, maps, and pie charts
+- Built with Dash, Plotly, SQLite3, and pandas
+
 
 ## AnimalShelterArtifact Original
 Original Artifact from CS-340 Client Server Development<br>
